@@ -2,5 +2,8 @@
   "name": "NPM Searcher",
   "description": "Search for npm packages in your Chrome address bar",
   "version": "0.1",
-  "manifest_version": 3
+  "manifest_version": 3,
+  "background": {
+    "scripts": ["background.js"]
+  }
 }
