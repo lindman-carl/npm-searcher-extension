@@ -25,8 +25,6 @@ const setDefaultSuggestion = (result: any) => {
 
 chrome.omnibox.onInputEntered.addListener((queryText: string) => {
   // Navigate user to selected page or the search page
-  console.log("Entered:", queryText);
-
   let url;
 
   const isUrl =
@@ -49,7 +47,6 @@ chrome.omnibox.onInputEntered.addListener((queryText: string) => {
 
 chrome.omnibox.onInputChanged.addListener(
   _.debounce((queryText: string, suggestCallback: any) => {
-    console.log("Changed");
     currentQueryString = queryText;
 
     function dataHandler(data: any) {
@@ -113,18 +110,7 @@ chrome.omnibox.onInputChanged.addListener(
     const data = fetch(
       `https://www.googleapis.com/customsearch/v1?key=${API_KEY}&cx=${CX}&num=${NO_OF_RESULTS}&lr="lang_en"&q=${queryText}`
     )
-      .then((res) => {
-        console.log(res);
-        return res.json();
-      })
+      .then((res) => res.json())
       .then((data) => dataHandler(data));
   }, 200)
 );
-
-chrome.omnibox.onInputStarted.addListener(() => {
-  console.log("Started");
-});
-
-chrome.omnibox.onInputCancelled.addListener(() => {
-  console.log("Cancelled");
-});
