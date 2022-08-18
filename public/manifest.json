@@ -8,5 +8,5 @@
     "type": "module"
   },
   "omnibox": { "keyword": "npm" },
-  "permissions": ["omnibox", "tabs"]
+  "permissions": ["tabs"]
 }
