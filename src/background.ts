@@ -1,4 +1,10 @@
-import _ from "underscore";
+function debounce<F extends (...params: any[]) => void>(fn: F, delay: number) {
+  let timeoutID: NodeJS.Timeout;
+  return function (this: any, ...args: any[]) {
+    clearTimeout(timeoutID);
+    timeoutID = setTimeout(() => fn.apply(this, args), delay);
+  } as F;
+}
 
 const SEARCH_QUERY_URL = "https://www.npmjs.com/search?q=";
 const NO_OF_RESULTS = 5;
@@ -13,7 +19,7 @@ const resultCache: any = {};
 const clearDefault = (queryText: string | undefined) => {
   latestDefault = null;
   const suggestion = queryText
-    ? `Search NPM for: <match>${queryText}</match>`
+    ? `Search NPM ss for: <match>${queryText}</match>`
     : "Start typing to search NPM";
   chrome.omnibox.setDefaultSuggestion({ description: suggestion });
 };
@@ -24,7 +30,6 @@ const setDefaultSuggestion = (result: any) => {
 };
 
 chrome.omnibox.onInputEntered.addListener((queryText: string) => {
-  // Navigate user to selected page or the search page
   let url;
 
   const isUrl =
@@ -35,7 +40,7 @@ chrome.omnibox.onInputEntered.addListener((queryText: string) => {
   } else if (queryText == currentQueryString && !!latestDefault) {
     url = latestDefault.content;
   } else {
-    var query =
+    const query =
       queryText.indexOf("[mdn]") == -1
         ? queryText
         : queryText.slice("[mdn]".length);
@@ -46,10 +51,11 @@ chrome.omnibox.onInputEntered.addListener((queryText: string) => {
 });
 
 chrome.omnibox.onInputChanged.addListener(
-  _.debounce((queryText: string, suggestCallback: any) => {
+  debounce((queryText: string, suggestCallback: any) => {
     currentQueryString = queryText;
 
     function dataHandler(data: any) {
+      console.log(data);
       if (data && !data.error) {
         resultCache[queryText] = data;
       }
@@ -66,32 +72,25 @@ chrome.omnibox.onInputChanged.addListener(
         return;
       }
 
-      var results = _(data.items)
-        .chain()
-        .first(NO_OF_RESULTS)
-        .map(function (item: any) {
-          var description =
-            "<url>" +
-            item.htmlFormattedUrl +
-            "</url><dim> - " +
-            item.htmlTitle +
-            "</dim>";
-          description = description
-            .replace(/<b>/gi, "<match>")
-            .replace(/<\/b>/gi, "</match>");
-          return {
-            content: item.link,
-            description: description,
-          };
-        })
-        .push({
-          content: "[npm]" + queryText,
-          description: `Search NPM for: <match>${queryText}</match>`,
-        })
-        .value();
+      const results = data.items.map((el: any) => {
+        const description = `<url>${el.htmlFormattedUrl}</url><dim> - ${el.htmlTitle}</dim>`;
+        const formattedDescription = description
+          .replace(/<b>/gi, "<match>")
+          .replace(/<\/b>/gi, "</match>");
 
-      setDefaultSuggestion(results.shift());
-      suggestCallback(results);
+        return {
+          content: el.link,
+          description: formattedDescription,
+        };
+      });
+
+      results.push({
+        content: "[npm]" + queryText,
+        description: `Search npmjs.com for: <match>${queryText}</match>`,
+      });
+
+      setDefaultSuggestion(results[0]);
+      suggestCallback(results.slice(1));
     }
 
     if (!queryText) {
