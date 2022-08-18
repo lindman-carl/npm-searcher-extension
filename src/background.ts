@@ -1,5 +1,7 @@
 import { debounce } from "./utils";
 
+// the code was inspired by the Chrome Extension MDN Search
+
 // env variables
 const CX = process.env.CX || "";
 const API_KEY = process.env.API_KEY || "";
@@ -8,15 +10,18 @@ const API_KEY = process.env.API_KEY || "";
 const SEARCH_QUERY_URL = "https://www.npmjs.com/search?q=";
 const NO_OF_RESULTS = 5;
 
+// globals
 let currentQueryString: string;
 let latestDefault: any = null;
 const resultCache: any = {};
 
 const clearDefault = (queryText: string | undefined) => {
+  // clears default suggestion
   latestDefault = null;
   const suggestion = queryText
-    ? `Search NPM ss for: <match>${queryText}</match>`
+    ? `Search npmjs.com for: <match>${queryText}</match>`
     : "Start typing to search NPM";
+
   chrome.omnibox.setDefaultSuggestion({ description: suggestion });
 };
 
@@ -26,14 +31,17 @@ const setDefaultSuggestion = (result: any) => {
 };
 
 chrome.omnibox.onInputEntered.addListener((queryText: string) => {
+  // when a user submits a string "presses enter"
   let url;
 
+  // make sure query is a url
+  // TODO: Regex
   const isUrl =
     queryText.indexOf("http://") === 0 || queryText.indexOf("https://") === 0;
 
   if (isUrl) {
     url = queryText;
-  } else if (queryText == currentQueryString && !!latestDefault) {
+  } else if (queryText === currentQueryString && !!latestDefault) {
     url = latestDefault.content;
   } else {
     const query =
@@ -43,6 +51,7 @@ chrome.omnibox.onInputEntered.addListener((queryText: string) => {
     url = SEARCH_QUERY_URL + encodeURIComponent(query);
   }
 
+  // navigate to url
   chrome.tabs.update({ url: url });
 });
 
@@ -51,17 +60,18 @@ chrome.omnibox.onInputChanged.addListener(
     currentQueryString = queryText;
 
     function dataHandler(data: any) {
-      console.log(data);
       if (data && !data.error) {
+        // set cache
         resultCache[queryText] = data;
       }
 
       if (currentQueryString !== queryText) {
-        // We went past this query
+        // went past this query
         return;
       }
 
       if (!data.items) {
+        // no packages found with query
         chrome.omnibox.setDefaultSuggestion({
           description: `No results found for: <match>${queryText}</match>`,
         });
@@ -69,6 +79,7 @@ chrome.omnibox.onInputChanged.addListener(
       }
 
       const results = data.items.map((el: any) => {
+        // format results with omnibox tags.
         const description = `<url>${el.htmlFormattedUrl}</url><dim> - ${el.htmlTitle}</dim>`;
         const formattedDescription = description
           .replace(/<b>/gi, "<match>")
@@ -80,6 +91,7 @@ chrome.omnibox.onInputChanged.addListener(
         };
       });
 
+      // add link to npmjs search results page
       results.push({
         content: "[npm]" + queryText,
         description: `Search npmjs.com for: <match>${queryText}</match>`,
@@ -89,12 +101,13 @@ chrome.omnibox.onInputChanged.addListener(
       suggestCallback(results.slice(1));
     }
 
+    // if the user has cleared the string
     if (!queryText) {
       clearDefault(queryText);
       return;
     }
 
-    // Check if we cached results for this query
+    // check cache
     if (resultCache[queryText]) {
       dataHandler(resultCache[queryText]);
       return;
@@ -102,6 +115,8 @@ chrome.omnibox.onInputChanged.addListener(
       clearDefault(queryText);
     }
 
+    // get data from Google custom search engine
+    // this could get expensive if there are many users
     const data = fetch(
       "https://www.googleapis.com/customsearch/v1?" +
         new URLSearchParams({
@@ -114,5 +129,5 @@ chrome.omnibox.onInputChanged.addListener(
     )
       .then((res) => res.json())
       .then((data) => dataHandler(data));
-  }, 200)
+  }, 250)
 );
