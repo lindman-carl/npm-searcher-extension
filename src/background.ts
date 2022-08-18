@@ -1,4 +1,4 @@
-import { debounce, isValidUrl } from "./utils";
+import { debounce, isValidURL } from "./utils";
 
 // the code was inspired by the Chrome Extension MDN Search
 
@@ -33,24 +33,18 @@ const setDefaultSuggestion = (result: any) => {
 chrome.omnibox.onInputEntered.addListener((queryText: string) => {
   // when a user submits a string "presses enter"
   let url;
-  const isUrl = isValidUrl(queryText);
-
-  // make sure query is a url
-  // TODO: Regex
-  // const isUrl =
-  //   queryText.indexOf("http://") === 0 || queryText.indexOf("https://") === 0;
-
-  // check if queryText is url
+  const isUrl = isValidURL(queryText);
 
   if (isUrl) {
     url = queryText;
-  } else if (queryText === currentQueryString && !!lastDefault) {
+  } else if (queryText === currentQueryString && lastDefault.content) {
     url = lastDefault.content;
   } else {
     const query =
       queryText.indexOf("[mdn]") == -1
         ? queryText
         : queryText.slice("[mdn]".length);
+
     url = SEARCH_QUERY_URL + encodeURIComponent(query);
   }
 

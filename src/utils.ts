@@ -10,7 +10,7 @@ export function debounce<F extends (...params: any[]) => void>(
   } as F;
 }
 
-export const isValidUrl = (string: string): boolean => {
+export const isValidURL = (string: string): boolean => {
   let url;
 
   try {
