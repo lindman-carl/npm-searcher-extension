@@ -1,4 +1,4 @@
-const _ = require("./underscore-umd");
+import _ from "underscore";
 
 const SEARCH_QUERY_URL = "https://www.npmjs.com/search?q=";
 const NO_OF_RESULTS = 5;
