@@ -1,6 +1,7 @@
 const path = require("path");
 const CopyPlugin = require("copy-webpack-plugin");
 const DotenvWebpackPlugin = require("dotenv-webpack");
+const webpack = require("webpack");
 module.exports = {
   mode: "production",
   entry: {
@@ -27,5 +28,8 @@ module.exports = {
       patterns: [{ from: ".", to: ".", context: "public" }],
     }),
     new DotenvWebpackPlugin(),
+    new webpack.ProvidePlugin({
+      process: "process/browser",
+    }),
   ],
 };
