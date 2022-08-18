@@ -1,0 +1,1 @@
+# NPM Searcher Chrome Extension
