@@ -8,5 +8,10 @@
     "type": "module"
   },
   "omnibox": { "keyword": "npm" },
-  "permissions": ["tabs"]
+  "permissions": ["tabs"],
+  "icons": {
+    "16": "npm-icon-16.png",
+    "48": "npm-icon-48.png",
+    "128": "npm-icon-128.png"
+  }
 }
