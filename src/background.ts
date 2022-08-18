@@ -1,16 +1,12 @@
-function debounce<F extends (...params: any[]) => void>(fn: F, delay: number) {
-  let timeoutID: NodeJS.Timeout;
-  return function (this: any, ...args: any[]) {
-    clearTimeout(timeoutID);
-    timeoutID = setTimeout(() => fn.apply(this, args), delay);
-  } as F;
-}
+import { debounce } from "./utils";
 
-const SEARCH_QUERY_URL = "https://www.npmjs.com/search?q=";
-const NO_OF_RESULTS = 5;
-
+// env variables
 const CX = process.env.CX || "";
 const API_KEY = process.env.API_KEY || "";
+
+// global constants
+const SEARCH_QUERY_URL = "https://www.npmjs.com/search?q=";
+const NO_OF_RESULTS = 5;
 
 let currentQueryString: string;
 let latestDefault: any = null;
