@@ -3,8 +3,8 @@ import _ from "underscore";
 const SEARCH_QUERY_URL = "https://www.npmjs.com/search?q=";
 const NO_OF_RESULTS = 5;
 
-const CX = process.env.CX;
-const API_KEY = process.env.API_KEY;
+const CX = process.env.CX || "";
+const API_KEY = process.env.API_KEY || "";
 
 let currentQueryString: string;
 let latestDefault: any = null;
@@ -108,7 +108,14 @@ chrome.omnibox.onInputChanged.addListener(
     }
 
     const data = fetch(
-      `https://www.googleapis.com/customsearch/v1?key=${API_KEY}&cx=${CX}&num=${NO_OF_RESULTS}&lr="lang_en"&q=${queryText}`
+      "https://www.googleapis.com/customsearch/v1?" +
+        new URLSearchParams({
+          key: API_KEY,
+          cx: CX,
+          num: NO_OF_RESULTS.toString(),
+          lr: "lang_en",
+          q: queryText,
+        })
     )
       .then((res) => res.json())
       .then((data) => dataHandler(data));
