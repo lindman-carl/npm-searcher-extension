@@ -3,8 +3,8 @@ import _ from "underscore";
 const SEARCH_QUERY_URL = "https://www.npmjs.com/search?q=";
 const NO_OF_RESULTS = 5;
 
-const CX = "717121682ed87481d";
-const API_KEY = "AIzaSyD-Q-sJIOezGErSiBYiMkwOEJKAX2BTOno";
+const CX = process.env.CX;
+const API_KEY = process.env.API_KEY;
 
 let currentQueryString: string;
 let latestDefault: any = null;
