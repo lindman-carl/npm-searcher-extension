@@ -1,4 +1,4 @@
-import { debounce } from "./utils";
+import { debounce, isValidUrl } from "./utils";
 
 // the code was inspired by the Chrome Extension MDN Search
 
@@ -12,12 +12,12 @@ const NO_OF_RESULTS = 5;
 
 // globals
 let currentQueryString: string;
-let latestDefault: any = null;
+let lastDefault: any = null;
 const resultCache: any = {};
 
 const clearDefault = (queryText: string | undefined) => {
   // clears default suggestion
-  latestDefault = null;
+  lastDefault = null;
   const suggestion = queryText
     ? `Search npmjs.com for: <match>${queryText}</match>`
     : "Start typing to search NPM";
@@ -26,23 +26,26 @@ const clearDefault = (queryText: string | undefined) => {
 };
 
 const setDefaultSuggestion = (result: any) => {
-  latestDefault = result;
+  lastDefault = result;
   chrome.omnibox.setDefaultSuggestion({ description: result.description });
 };
 
 chrome.omnibox.onInputEntered.addListener((queryText: string) => {
   // when a user submits a string "presses enter"
   let url;
+  const isUrl = isValidUrl(queryText);
 
   // make sure query is a url
   // TODO: Regex
-  const isUrl =
-    queryText.indexOf("http://") === 0 || queryText.indexOf("https://") === 0;
+  // const isUrl =
+  //   queryText.indexOf("http://") === 0 || queryText.indexOf("https://") === 0;
+
+  // check if queryText is url
 
   if (isUrl) {
     url = queryText;
-  } else if (queryText === currentQueryString && !!latestDefault) {
-    url = latestDefault.content;
+  } else if (queryText === currentQueryString && !!lastDefault) {
+    url = lastDefault.content;
   } else {
     const query =
       queryText.indexOf("[mdn]") == -1

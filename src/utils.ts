@@ -9,3 +9,16 @@ export function debounce<F extends (...params: any[]) => void>(
     timeoutID = setTimeout(() => fn.apply(this, args), delay);
   } as F;
 }
+
+export const isValidUrl = (string: string): boolean => {
+  let url;
+
+  try {
+    // throws exception if invalid
+    url = new URL(string);
+  } catch (_) {
+    return false;
+  }
+
+  return url.protocol === "http:" || url.protocol === "https:";
+};
