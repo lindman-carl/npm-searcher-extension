@@ -1,9 +1,10 @@
 {
   "name": "NPM Searcher",
-  "description": "Search for npm packages in your Chrome address bar",
+  "description": "Search for npm packages in your Chrome omnibox",
   "version": "0.1",
   "manifest_version": 3,
   "background": {
-    "scripts": ["background.js"]
-  }
+    "service_worker": "background.js"
+  },
+  "omnibox": { "keyword": "npm" }
 }
